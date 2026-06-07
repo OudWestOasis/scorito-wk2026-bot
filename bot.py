@@ -240,6 +240,7 @@ def process_commands():
     import storage
     from telegram_bot import get_updates, send
 
+    import time
     offset = storage.get_meta("tg_offset")
     try:
         updates = get_updates(int(offset) + 1 if offset else None)
@@ -249,15 +250,13 @@ def process_commands():
     if not updates:
         return
     max_id = max(u["update_id"] for u in updates)
-
-    if offset is None:
-        # Eerste keer: oude backlog (/start, test) overslaan.
-        storage.set_meta("tg_offset", str(max_id))
-        return
+    cutoff = time.time() - 3600  # alleen écht oude backlog (>1 uur) negeren
 
     for u in updates:
         msg = u.get("message") or {}
         if str((msg.get("chat") or {}).get("id")) != str(CHAT_ID):
+            continue
+        if (msg.get("date") or 0) < cutoff:
             continue
         text = (msg.get("text") or "").strip()
         if not text:
