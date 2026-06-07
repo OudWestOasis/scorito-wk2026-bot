@@ -1,8 +1,15 @@
 {
-  "event_log": [],
+  "event_log": [
+    [
+      "2026-06-07T15:45:53.287780+00:00",
+      "vraag beantwoord: fastlane"
+    ]
+  ],
   "last_known_score": {},
   "match_goal_points": {},
-  "meta": {},
+  "meta": {
+    "tg_offset": "736448682"
+  },
   "running_total": {},
   "sent_messages": []
 }
