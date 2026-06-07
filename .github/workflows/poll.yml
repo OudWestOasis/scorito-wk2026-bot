@@ -7,7 +7,12 @@ name: Scorito poll
 on:
   schedule:
     - cron: '*/5 * * * *'
-  workflow_dispatch: {}        # handmatige testknop in de Actions-tab
+  workflow_dispatch:           # handmatige knop in de Actions-tab
+    inputs:
+      command:
+        description: 'Actie: poll / test / status / demo'
+        default: 'poll'
+        required: false
 
 # Nodig om state.json terug te kunnen committen.
 permissions:
@@ -34,11 +39,12 @@ jobs:
       - name: Dependencies installeren
         run: pip install -r requirements.txt
 
-      - name: Bot draaien (poll)
+      - name: Bot draaien
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python bot.py poll
+          BOT_CMD: ${{ github.event.inputs.command || 'poll' }}
+        run: python bot.py "$BOT_CMD"
 
       - name: State terugcommitten (alleen bij wijziging)
         run: |

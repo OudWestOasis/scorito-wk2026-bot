@@ -188,6 +188,58 @@ def build_next() -> str:
     return "\n".join(lines)
 
 
+def build_fastlane() -> str:
+    """Compleet overzicht: punten nu, verleden, volgende + komende wedstrijden."""
+    import api_client as api
+    import scoring
+    import storage
+
+    lines = ["📊 *Jouw Scorito-overzicht*", "", f"Punten nu: *{storage.get_total()}*"]
+
+    # Verleden uit de geschiedenis (afgeronde wedstrijden).
+    ft = [t for _, t in storage.recent_events(200) if t.startswith("FT:")]
+    if ft:
+        exact = sum(1 for t in ft if "Exacte" in t)
+        toto = sum(1 for t in ft if "Toto goed" in t)
+        lines.append(f"Gespeeld: {len(ft)} · exact {exact} · toto {toto}")
+
+    # Eerstvolgende wedstrijd + jouw voorspelling.
+    try:
+        nxt = api.get_next_match()
+    except Exception:
+        nxt = None
+    lines.append("")
+    if nxt:
+        phase = scoring.detect_phase(nxt["utc_date"])
+        ph, pa = _oriented_prediction(find_prediction(nxt["home"], nxt["away"]),
+                                      nxt["home"], nxt["away"])
+        pred = f"{ph}-{pa}" if ph is not None else "—"
+        lines.append(f"⏭️ *Volgende:* {nxt['home']} – {nxt['away']}")
+        lines.append(f"🕘 {_fmt_dt_ams(nxt['utc_date'])} · jouw uitslag: *{pred}*")
+        picks = [s["name"] for s in _phase_scorers(phase)
+                 if s["team"] in (nxt["home"], nxt["away"])]
+        if picks:
+            lines.append(f"⭐ picks: {', '.join(picks)}")
+    else:
+        lines.append("Geen geplande wedstrijd gevonden.")
+
+    # Daarna komende wedstrijden.
+    try:
+        upcoming = api.get_matches_in_days(7)
+    except Exception:
+        upcoming = []
+    rest = upcoming[1:5] if nxt else upcoming[:4]
+    if rest:
+        lines.append("")
+        lines.append("🗓️ *Daarna:*")
+        for m in rest:
+            ph, pa = _oriented_prediction(find_prediction(m["home"], m["away"]),
+                                          m["home"], m["away"])
+            pred = f"{ph}-{pa}" if ph is not None else "—"
+            lines.append(f"• {_fmt_dt_ams(m['utc_date'])} {m['home']}–{m['away']} ({pred})")
+    return "\n".join(lines)
+
+
 def build_log() -> str:
     import storage
     events = storage.recent_events(15)
@@ -207,7 +259,7 @@ def build_help() -> str:
     return "\n".join([
         "🤖 *Scorito-bot — commando's*",
         "",
-        "fastlane — jouw eerstvolgende voorspelling",
+        "fastlane — overzicht: punten + volgende & komende wedstrijden",
         "/stand — subtotaal + punten per fase",
         "/week — komende wedstrijden + wat jij hebt ingevuld",
         "/log — wat de bot allemaal gedaan heeft",
@@ -224,7 +276,9 @@ _UNKNOWN = "Onbekend commando. Stuur /help voor de opties."
 def _dispatch(cmd: str) -> str:
     if cmd in ("help", "start"):
         return build_help()
-    if cmd in ("fastlane", "volgende", "next", "voorspelling"):
+    if cmd in ("fastlane", "overzicht", "dashboard"):
+        return build_fastlane()
+    if cmd in ("volgende", "next", "voorspelling"):
         return build_next()
     if cmd in ("stand", "totaal", "score", "punten"):
         return build_status()
