@@ -1,0 +1,3 @@
+# Forceer LF in de repo, zodat de workflow-scripts op de Linux-runner
+# niet over Windows-regeleindes (\r) struikelen.
+* text=auto eol=lf
