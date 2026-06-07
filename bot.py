@@ -161,6 +161,33 @@ def build_week() -> str:
     return "\n".join(lines)
 
 
+def build_next() -> str:
+    import api_client as api
+    import scoring
+    try:
+        m = api.get_next_match()
+    except Exception as e:
+        return f"Kon de volgende wedstrijd niet ophalen: {e}"
+    if not m:
+        return "Geen geplande wedstrijd gevonden."
+    phase = scoring.detect_phase(m["utc_date"])
+    ph, pa = _oriented_prediction(find_prediction(m["home"], m["away"]),
+                                  m["home"], m["away"])
+    pred = f"{ph}-{pa}" if ph is not None else "—"
+    lines = [
+        "⏭️ *Jouw volgende voorspelling*",
+        "",
+        f"*{m['home']} – {m['away']}*",
+        f"🕘 {_fmt_dt_ams(m['utc_date'])}",
+        f"Jouw uitslag: *{pred}*",
+    ]
+    picks = [f"{s['name']} ({s['position']})" for s in _phase_scorers(phase)
+             if s["team"] in (m["home"], m["away"])]
+    if picks:
+        lines.append("⭐ jouw picks: " + ", ".join(picks))
+    return "\n".join(lines)
+
+
 def build_log() -> str:
     import storage
     events = storage.recent_events(15)
@@ -180,6 +207,7 @@ def build_help() -> str:
     return "\n".join([
         "🤖 *Scorito-bot — commando's*",
         "",
+        "fastlane — jouw eerstvolgende voorspelling",
         "/stand — subtotaal + punten per fase",
         "/week — komende wedstrijden + wat jij hebt ingevuld",
         "/log — wat de bot allemaal gedaan heeft",
@@ -190,16 +218,21 @@ def build_help() -> str:
     ])
 
 
+_UNKNOWN = "Onbekend commando. Stuur /help voor de opties."
+
+
 def _dispatch(cmd: str) -> str:
     if cmd in ("help", "start"):
         return build_help()
+    if cmd in ("fastlane", "volgende", "next", "voorspelling"):
+        return build_next()
     if cmd in ("stand", "totaal", "score", "punten"):
         return build_status()
     if cmd in ("week", "komend", "komende", "agenda"):
         return build_week()
     if cmd in ("log", "geschiedenis", "historie"):
         return build_log()
-    return "Onbekend commando. Stuur /help voor de opties."
+    return _UNKNOWN
 
 
 def process_commands():
@@ -227,13 +260,19 @@ def process_commands():
         if str((msg.get("chat") or {}).get("id")) != str(CHAT_ID):
             continue
         text = (msg.get("text") or "").strip()
-        if not text.startswith("/"):
+        if not text:
             continue
+        # Werkt met én zonder schuine streep (bv. "fastlane" of "/stand").
+        is_slash = text.startswith("/")
         cmd = text.split()[0].lstrip("/").split("@")[0].lower()
         reply = _dispatch(cmd)
+        # Bij gewone tekst (geen /) alleen reageren als we het herkennen,
+        # zodat losse chatberichten geen "onbekend"-antwoord uitlokken.
+        if not is_slash and reply == _UNKNOWN:
+            continue
         send(CHAT_ID, reply)
-        storage.log_event(f"vraag beantwoord: /{cmd}")
-        print(f"[cmd] /{cmd}")
+        storage.log_event(f"vraag beantwoord: {cmd}")
+        print(f"[cmd] {cmd}")
     storage.set_meta("tg_offset", str(max_id))
 
 

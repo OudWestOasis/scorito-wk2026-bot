@@ -154,6 +154,15 @@ def get_matches_in_days(days: int = 7) -> list[dict]:
     return sorted(out, key=lambda m: m["utc_date"])
 
 
+def get_next_match() -> dict | None:
+    """De eerstvolgende nog te spelen wedstrijd (widening window)."""
+    for days in (2, 5, 14, 45):
+        ms = get_matches_in_days(days)
+        if ms:
+            return ms[0]
+    return None
+
+
 def get_live_matches() -> list[dict]:
     """Lopende wedstrijden."""
     now = datetime.now(timezone.utc)
