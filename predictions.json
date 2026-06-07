@@ -1,0 +1,224 @@
+{
+  "owner": "Joris",
+  "pool": "Oud-West Oasis",
+  "tournament": "FIFA World Cup 2026",
+  "bonus": {
+    "champion": "Spain",
+    "tournament_top_scorer": "Lamine Yamal"
+  },
+  "groups": {
+    "A": {
+      "teams": ["Mexico", "South Africa", "South Korea", "Czechia"],
+      "matches": [
+        {"home": "Mexico", "away": "South Africa", "pred_home": 2, "pred_away": 0},
+        {"home": "South Korea", "away": "Czechia", "pred_home": 1, "pred_away": 1},
+        {"home": "Mexico", "away": "Czechia", "pred_home": 1, "pred_away": 1},
+        {"home": "South Korea", "away": "South Africa", "pred_home": 2, "pred_away": 1},
+        {"home": "South Africa", "away": "Czechia", "pred_home": 0, "pred_away": 1},
+        {"home": "Mexico", "away": "South Korea", "pred_home": 2, "pred_away": 1}
+      ],
+      "standings": ["Mexico", "Czechia", "South Korea", "South Africa"]
+    },
+    "B": {
+      "teams": ["Canada", "Bosnia", "Qatar", "Switzerland"],
+      "matches": [
+        {"home": "Canada", "away": "Bosnia", "pred_home": 1, "pred_away": 1},
+        {"home": "Qatar", "away": "Switzerland", "pred_home": 0, "pred_away": 2},
+        {"home": "Canada", "away": "Qatar", "pred_home": 2, "pred_away": 1},
+        {"home": "Bosnia", "away": "Switzerland", "pred_home": 1, "pred_away": 1},
+        {"home": "Bosnia", "away": "Qatar", "pred_home": 2, "pred_away": 0},
+        {"home": "Canada", "away": "Switzerland", "pred_home": 1, "pred_away": 2}
+      ],
+      "standings": ["Switzerland", "Canada", "Bosnia", "Qatar"]
+    },
+    "C": {
+      "teams": ["Brazil", "Morocco", "Haiti", "Scotland"],
+      "matches": [
+        {"home": "Brazil", "away": "Haiti", "pred_home": 3, "pred_away": 0},
+        {"home": "Morocco", "away": "Scotland", "pred_home": 1, "pred_away": 1},
+        {"home": "Brazil", "away": "Morocco", "pred_home": 2, "pred_away": 1},
+        {"home": "Scotland", "away": "Haiti", "pred_home": 2, "pred_away": 1},
+        {"home": "Morocco", "away": "Haiti", "pred_home": 2, "pred_away": 0, "note": "accent: Morocco 2nd"},
+        {"home": "Brazil", "away": "Scotland", "pred_home": 2, "pred_away": 1}
+      ],
+      "standings": ["Brazil", "Morocco", "Scotland", "Haiti"]
+    },
+    "D": {
+      "teams": ["USA", "Paraguay", "Australia", "Turkey"],
+      "matches": [
+        {"home": "USA", "away": "Australia", "pred_home": 2, "pred_away": 0},
+        {"home": "Paraguay", "away": "Turkey", "pred_home": 1, "pred_away": 1},
+        {"home": "USA", "away": "Turkey", "pred_home": 2, "pred_away": 1},
+        {"home": "Paraguay", "away": "Australia", "pred_home": 1, "pred_away": 0},
+        {"home": "Turkey", "away": "Australia", "pred_home": 2, "pred_away": 1},
+        {"home": "USA", "away": "Paraguay", "pred_home": 2, "pred_away": 1}
+      ],
+      "standings": ["USA", "Turkey", "Paraguay", "Australia"]
+    },
+    "E": {
+      "teams": ["Germany", "Curacao", "Ivory Coast", "Ecuador"],
+      "matches": [
+        {"home": "Germany", "away": "Curacao", "pred_home": 2, "pred_away": 0},
+        {"home": "Ivory Coast", "away": "Ecuador", "pred_home": 1, "pred_away": 1},
+        {"home": "Germany", "away": "Ivory Coast", "pred_home": 1, "pred_away": 1},
+        {"home": "Ecuador", "away": "Curacao", "pred_home": 2, "pred_away": 0},
+        {"home": "Ivory Coast", "away": "Curacao", "pred_home": 2, "pred_away": 0},
+        {"home": "Germany", "away": "Ecuador", "pred_home": 1, "pred_away": 1}
+      ],
+      "standings": ["Germany", "Ivory Coast", "Ecuador", "Curacao"]
+    },
+    "F": {
+      "teams": ["Netherlands", "Japan", "Sweden", "Tunisia"],
+      "matches": [
+        {"home": "Netherlands", "away": "Japan", "pred_home": 2, "pred_away": 1},
+        {"home": "Sweden", "away": "Tunisia", "pred_home": 1, "pred_away": 1},
+        {"home": "Netherlands", "away": "Tunisia", "pred_home": 2, "pred_away": 0},
+        {"home": "Japan", "away": "Sweden", "pred_home": 2, "pred_away": 1},
+        {"home": "Tunisia", "away": "Japan", "pred_home": 0, "pred_away": 2},
+        {"home": "Netherlands", "away": "Sweden", "pred_home": 1, "pred_away": 1}
+      ],
+      "standings": ["Netherlands", "Japan", "Sweden", "Tunisia"]
+    },
+    "G": {
+      "teams": ["Belgium", "Egypt", "Iran", "New Zealand"],
+      "matches": [
+        {"home": "Belgium", "away": "Egypt", "pred_home": 2, "pred_away": 0},
+        {"home": "Iran", "away": "New Zealand", "pred_home": 1, "pred_away": 0},
+        {"home": "Belgium", "away": "Iran", "pred_home": 2, "pred_away": 1},
+        {"home": "Egypt", "away": "New Zealand", "pred_home": 1, "pred_away": 0},
+        {"home": "Iran", "away": "Egypt", "pred_home": 1, "pred_away": 1},
+        {"home": "Belgium", "away": "New Zealand", "pred_home": 3, "pred_away": 0}
+      ],
+      "standings": ["Belgium", "Iran", "Egypt", "New Zealand"]
+    },
+    "H": {
+      "teams": ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"],
+      "matches": [
+        {"home": "Spain", "away": "Cape Verde", "pred_home": 3, "pred_away": 0},
+        {"home": "Saudi Arabia", "away": "Uruguay", "pred_home": 1, "pred_away": 1},
+        {"home": "Spain", "away": "Saudi Arabia", "pred_home": 2, "pred_away": 0},
+        {"home": "Uruguay", "away": "Cape Verde", "pred_home": 2, "pred_away": 1},
+        {"home": "Saudi Arabia", "away": "Cape Verde", "pred_home": 1, "pred_away": 2},
+        {"home": "Spain", "away": "Uruguay", "pred_home": 2, "pred_away": 1}
+      ],
+      "standings": ["Spain", "Uruguay", "Cape Verde", "Saudi Arabia"]
+    },
+    "I": {
+      "teams": ["France", "Senegal", "Iraq", "Norway"],
+      "matches": [
+        {"home": "France", "away": "Senegal", "pred_home": 2, "pred_away": 1},
+        {"home": "Iraq", "away": "Norway", "pred_home": 1, "pred_away": 3},
+        {"home": "France", "away": "Iraq", "pred_home": 2, "pred_away": 0},
+        {"home": "Senegal", "away": "Norway", "pred_home": 1, "pred_away": 2},
+        {"home": "Senegal", "away": "Iraq", "pred_home": 2, "pred_away": 0},
+        {"home": "France", "away": "Norway", "pred_home": 1, "pred_away": 1}
+      ],
+      "standings": ["France", "Norway", "Senegal", "Iraq"]
+    },
+    "J": {
+      "teams": ["Argentina", "Algeria", "Austria", "Jordan"],
+      "matches": [
+        {"home": "Argentina", "away": "Algeria", "pred_home": 2, "pred_away": 0},
+        {"home": "Austria", "away": "Jordan", "pred_home": 2, "pred_away": 1},
+        {"home": "Argentina", "away": "Austria", "pred_home": 2, "pred_away": 0},
+        {"home": "Algeria", "away": "Jordan", "pred_home": 1, "pred_away": 0},
+        {"home": "Austria", "away": "Algeria", "pred_home": 2, "pred_away": 0},
+        {"home": "Argentina", "away": "Jordan", "pred_home": 3, "pred_away": 0}
+      ],
+      "standings": ["Argentina", "Austria", "Algeria", "Jordan"]
+    },
+    "K": {
+      "teams": ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
+      "matches": [
+        {"home": "Portugal", "away": "DR Congo", "pred_home": 2, "pred_away": 0},
+        {"home": "Uzbekistan", "away": "Colombia", "pred_home": 1, "pred_away": 1},
+        {"home": "Portugal", "away": "Uzbekistan", "pred_home": 1, "pred_away": 0},
+        {"home": "Colombia", "away": "DR Congo", "pred_home": 2, "pred_away": 1},
+        {"home": "DR Congo", "away": "Uzbekistan", "pred_home": 1, "pred_away": 1},
+        {"home": "Portugal", "away": "Colombia", "pred_home": 1, "pred_away": 1}
+      ],
+      "standings": ["Portugal", "Colombia", "DR Congo", "Uzbekistan"]
+    },
+    "L": {
+      "teams": ["England", "Croatia", "Ghana", "Panama"],
+      "matches": [
+        {"home": "England", "away": "Ghana", "pred_home": 2, "pred_away": 0},
+        {"home": "Croatia", "away": "Panama", "pred_home": 2, "pred_away": 0},
+        {"home": "England", "away": "Croatia", "pred_home": 1, "pred_away": 1},
+        {"home": "Ghana", "away": "Panama", "pred_home": 2, "pred_away": 1},
+        {"home": "Croatia", "away": "Ghana", "pred_home": 2, "pred_away": 1},
+        {"home": "England", "away": "Panama", "pred_home": 2, "pred_away": 0}
+      ],
+      "standings": ["England", "Croatia", "Ghana", "Panama"]
+    }
+  },
+  "top_scorers_per_phase": {
+    "group_stage": [
+      {"name": "Lamine Yamal", "team": "Spain", "position": "FW"},
+      {"name": "Kylian Mbappe", "team": "France", "position": "FW"},
+      {"name": "Harry Kane", "team": "England", "position": "FW"},
+      {"name": "Cristiano Ronaldo", "team": "Portugal", "position": "FW"},
+      {"name": "Marc Cucurella", "team": "Spain", "position": "DF"},
+      {"name": "Aurelien Tchouameni", "team": "France", "position": "MF"}
+    ],
+    "round_of_32": [
+      {"name": "Lamine Yamal", "team": "Spain", "position": "FW"},
+      {"name": "Kylian Mbappe", "team": "France", "position": "FW"},
+      {"name": "Julian Alvarez", "team": "Argentina", "position": "FW"},
+      {"name": "Vinicius Jr", "team": "Brazil", "position": "FW"},
+      {"name": "Marc Cucurella", "team": "Spain", "position": "DF"},
+      {"name": "Pedri", "team": "Spain", "position": "MF"}
+    ],
+    "round_of_16": [
+      {"name": "Lamine Yamal", "team": "Spain", "position": "FW"},
+      {"name": "Kylian Mbappe", "team": "France", "position": "FW"},
+      {"name": "Julian Alvarez", "team": "Argentina", "position": "FW"},
+      {"name": "Nico Williams", "team": "Spain", "position": "FW"},
+      {"name": "William Saliba", "team": "France", "position": "DF"},
+      {"name": "Pedri", "team": "Spain", "position": "MF"}
+    ],
+    "quarterfinal": [
+      {"name": "Lamine Yamal", "team": "Spain", "position": "FW"},
+      {"name": "Kylian Mbappe", "team": "France", "position": "FW"},
+      {"name": "Julian Alvarez", "team": "Argentina", "position": "FW"},
+      {"name": "Vinicius Jr", "team": "Brazil", "position": "FW"},
+      {"name": "Aymeric Laporte", "team": "Spain", "position": "DF"},
+      {"name": "Pedri", "team": "Spain", "position": "MF"}
+    ],
+    "semifinal": [
+      {"name": "Lamine Yamal", "team": "Spain", "position": "FW"},
+      {"name": "Kylian Mbappe", "team": "France", "position": "FW"},
+      {"name": "Julian Alvarez", "team": "Argentina", "position": "FW"},
+      {"name": "Alvaro Morata", "team": "Spain", "position": "FW"},
+      {"name": "Aymeric Laporte", "team": "Spain", "position": "DF"},
+      {"name": "Pedri", "team": "Spain", "position": "MF"}
+    ],
+    "final": [
+      {"name": "Lamine Yamal", "team": "Spain", "position": "FW"},
+      {"name": "Nico Williams", "team": "Spain", "position": "FW"},
+      {"name": "Alvaro Morata", "team": "Spain", "position": "FW"},
+      {"name": "Julian Alvarez", "team": "Argentina", "position": "FW"},
+      {"name": "Aymeric Laporte", "team": "Spain", "position": "DF"},
+      {"name": "Pedri", "team": "Spain", "position": "MF"}
+    ]
+  },
+  "knockout_predictions": {
+    "quarterfinal": [
+      {"home": "Spain", "away": "Netherlands", "winner": "Spain"},
+      {"home": "France", "away": "Portugal", "winner": "France"},
+      {"home": "Argentina", "away": "England", "winner": "Argentina"},
+      {"home": "Brazil", "away": "Germany", "winner": "Brazil"}
+    ],
+    "semifinal": [
+      {"home": "Spain", "away": "France", "winner": "Spain"},
+      {"home": "Argentina", "away": "Brazil", "winner": "Argentina"}
+    ],
+    "final": {
+      "home": "Spain",
+      "away": "Argentina",
+      "pred_home": 2,
+      "pred_away": 1,
+      "winner": "Spain"
+    }
+  }
+}

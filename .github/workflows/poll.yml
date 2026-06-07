@@ -1,0 +1,53 @@
+name: Scorito poll
+
+# Cron staat in UTC. '*/5 * * * *' = elke 5 minuten, dag en nacht.
+# De bot rekent zelf alle tijden naar Europe/Amsterdam in de berichten,
+# dus voor dit interval-schema is geen tijdzone-omrekening nodig.
+# LET OP: GitHub kan geplande runs vertragen (vaak 5-15 min onder load).
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}        # handmatige testknop in de Actions-tab
+
+# Nodig om state.json terug te kunnen committen.
+permissions:
+  contents: write
+
+# Voorkom dat twee runs tegelijk de state schrijven.
+concurrency:
+  group: scorito-poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python opzetten (met pip-cache)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Dependencies installeren
+        run: pip install -r requirements.txt
+
+      - name: Bot draaien (poll)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python bot.py poll
+
+      - name: State terugcommitten (alleen bij wijziging)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          if git diff --cached --quiet; then
+            echo "Geen state-wijziging — niets te committen."
+          else
+            git commit -m "chore: update state [skip ci]"
+            git push
+          fi

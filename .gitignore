@@ -1,0 +1,13 @@
+# Geheimen — NOOIT committen
+.env
+
+# Lokale rommel
+.venv/
+__pycache__/
+*.pyc
+*.db
+*.db-wal
+*.db-shm
+bot.log
+
+# state.json wordt JUIST wél gecommit (door de workflow) — niet negeren.
