@@ -96,6 +96,23 @@ Disable-ScheduledTask -TaskName ScoritoWK2026Bot
 
 ---
 
+## Laptop doet mee als hij openstaat (sneller)
+
+De cloud draait 24/7. Wanneer je laptop openstaat neemt die het **sneller** over
+(elke minuut i.p.v. 5), zónder dubbele berichten:
+
+- De laptop draait elke minuut `run_local.ps1` (via Windows-taak `ScoritoWK2026Bot`,
+  vensterloos gestart door `run_hidden.vbs`). Dat script: state ophalen (`git pull`)
+  → **heartbeat** verversen (repo-variabele `LAPTOP_HEARTBEAT`) → `bot.py poll` als
+  `RUN_LOCATION=laptop` → gewijzigde state terugpushen.
+- De cloud-poll leest die heartbeat. Is die < 3 min oud, dan gaat de cloud
+  **stand-by** (`bot.py` slaat de ronde over). Zo stuurt er altijd maar één.
+- Laptop dicht → heartbeat veroudert → de cloud neemt binnen ~5 min weer over.
+
+State (`state.json`) is gedeeld via git, dus bij het wisselen gaat niets dubbel.
+Laptop-taak uitzetten: `Disable-ScheduledTask -TaskName ScoritoWK2026Bot`
+(de cloud doet dan gewoon alles).
+
 ## Aandachtspunten
 
 - **Cron-vertraging.** GitHub voert geplande runs *niet* op de seconde uit; onder
