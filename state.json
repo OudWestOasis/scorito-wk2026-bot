@@ -11,6 +11,10 @@
     [
       "2026-06-11T18:03:08.459277+00:00",
       "vraag beantwoord: fastlane"
+    ],
+    [
+      "2026-06-11T18:20:05.236949+00:00",
+      "pre-match: Mexico–South Africa (jouw 2-0)"
     ]
   ],
   "last_known_score": {},
@@ -19,5 +23,8 @@
     "tg_offset": "736448686"
   },
   "running_total": {},
-  "sent_messages": []
+  "scorer_goals": {},
+  "sent_messages": [
+    "760415:pre"
+  ]
 }
