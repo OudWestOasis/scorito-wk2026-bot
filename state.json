@@ -23,16 +23,27 @@
     [
       "2026-06-11T18:55:06.659035+00:00",
       "vraag beantwoord: fastlane"
+    ],
+    [
+      "2026-06-11T19:31:52.032448+00:00",
+      "inhaal: Mexico 1-0 South Africa"
     ]
   ],
-  "last_known_score": {},
+  "last_known_score": {
+    "760415": [
+      1,
+      0
+    ]
+  },
   "match_goal_points": {},
   "meta": {
-    "tg_offset": "736448690"
+    "tg_offset": "736448690",
+    "toto_760415": "1"
   },
   "running_total": {},
   "scorer_goals": {},
   "sent_messages": [
-    "760415:pre"
+    "760415:pre",
+    "760415:catchup"
   ]
 }
