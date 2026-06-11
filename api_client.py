@@ -156,6 +156,13 @@ def get_matches_in_days(days: int = 7) -> list[dict]:
     return sorted(out, key=lambda m: m["utc_date"])
 
 
+def get_tournament_results() -> list[dict]:
+    """Alle afgeronde wedstrijden van het hele toernooi (voor de bracket-tracker)."""
+    start = datetime(2026, 6, 11, tzinfo=timezone.utc)
+    end = datetime(2026, 7, 20, tzinfo=timezone.utc)
+    return [m for m in _scoreboard(start, end) if m["status"] == "FINISHED"]
+
+
 def get_next_match() -> dict | None:
     """De eerstvolgende nog te spelen wedstrijd (widening window)."""
     for days in (2, 5, 14, 45):

@@ -247,6 +247,54 @@ def build_fastlane() -> str:
     return "\n".join(lines)
 
 
+def build_bracket() -> str:
+    """Jouw voorspelde knockout-route + of je teams nog in de race zijn."""
+    import api_client as api
+    import scoring
+
+    ko = PREDICTIONS["knockout_predictions"]
+    champion = PREDICTIONS["bonus"]["champion"]
+
+    # Uitgeschakeld = duidelijke verliezer van een afgeronde knockout-wedstrijd.
+    eliminated = set()
+    try:
+        for m in api.get_tournament_results():
+            if scoring.detect_phase(m["utc_date"]) == "group_stage":
+                continue
+            sh, sa = m["score_home"] or 0, m["score_away"] or 0
+            if sh == sa:
+                continue  # beslist op strafschoppen — niet automatisch raden
+            eliminated.add(m["away"] if sh > sa else m["home"])
+    except Exception:
+        pass
+
+    ko_started = datetime.now(AMS).date() > datetime(2026, 6, 27).date()
+
+    def st(team):
+        if team in eliminated:
+            return "❌ uit"
+        return "✅ nog in de race" if ko_started else "⏳ groepsfase"
+
+    lines = ["🏆 *Jouw voorspelde route — Oud-West Oasis*", "",
+             f"Kampioen: *{champion}* — {st(champion)}", "",
+             "*Kwartfinales* (jouw winnaars):"]
+    for m in ko["quarterfinal"]:
+        lines.append(f"• {m['home']}–{m['away']} → *{m['winner']}* {st(m['winner'])}")
+    lines.append("")
+    lines.append("*Halve finales:*")
+    for m in ko["semifinal"]:
+        lines.append(f"• {m['home']}–{m['away']} → *{m['winner']}* {st(m['winner'])}")
+    fin = ko["final"]
+    lines.append("")
+    lines.append(f"*Finale:* {fin['home']}–{fin['away']} → *{fin['winner']}* "
+                 f"({fin['pred_home']}-{fin['pred_away']}) {st(fin['winner'])}")
+    if eliminated:
+        lines.append("")
+        lines.append("_Status volgt knockout-uitschakelingen; op strafschoppen "
+                     "besliste duels tellen we niet automatisch mee._")
+    return "\n".join(lines)
+
+
 def build_morning() -> str:
     """Ochtendbericht: punten + de wedstrijden van vandaag met jouw voorspelling."""
     import api_client as api
@@ -320,6 +368,7 @@ def build_help() -> str:
         "fastlane — overzicht: punten + volgende & komende wedstrijden",
         "/vandaag — wedstrijden van vandaag + jouw voorspellingen",
         "/picks — je topscorers + hoeveel ze al scoorden",
+        "/bracket — jouw voorspelde route: wie nog in de race is",
         "/stand — subtotaal + punten per fase",
         "/week — komende wedstrijden + wat jij hebt ingevuld",
         "/log — wat de bot allemaal gedaan heeft",
@@ -340,6 +389,8 @@ def _dispatch(cmd: str) -> str:
         return build_fastlane()
     if cmd in ("picks", "topscorers", "spitsen"):
         return build_picks()
+    if cmd in ("bracket", "route", "knockout"):
+        return build_bracket()
     if cmd in ("vandaag", "ochtend", "morning"):
         return build_morning()
     if cmd in ("volgende", "next", "voorspelling"):
