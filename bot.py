@@ -90,6 +90,13 @@ def _outlook(sh, sa, ph, pa) -> str:
     return "📉 Nu nog niet jouw voorspelling"
 
 
+def _toto_status(sh, sa, ph, pa):
+    """True = jouw toto (1X2-richting) klopt nu, False = niet, None = geen voorspelling."""
+    if ph is None or pa is None:
+        return None
+    return _result(sh, sa) == _result(ph, pa)
+
+
 def _kickoff_ams(utc_date: str) -> str:
     dt = datetime.fromisoformat(utc_date.replace("Z", "+00:00")).astimezone(AMS)
     return dt.strftime("%H:%M")
@@ -468,6 +475,9 @@ def cmd_poll():
             last = storage.get_last_score(m["id"])
             if last is None:
                 storage.set_last_score(m["id"], sh, sa)
+                ts = _toto_status(sh, sa, ph, pa)
+                if ts is not None:
+                    storage.set_meta(f"toto_{m['id']}", "1" if ts else "0")
             elif (sh, sa) != last:
                 scorer_name, pick = "onbekend", None
                 try:
@@ -495,6 +505,23 @@ def cmd_poll():
                     storage.log_event(f"goal: {m['home']} {sh}-{sa} {m['away']}{tag}")
                     print(f"[goal] {m['home']} {sh}-{sa} {m['away']}{tag}")
                 storage.set_last_score(m["id"], sh, sa)
+
+                # Toto-kantel-alarm: los seintje als je voorspelling van goed<->mis wisselt.
+                ts = _toto_status(sh, sa, ph, pa)
+                if ts is not None:
+                    prev = storage.get_meta(f"toto_{m['id']}")
+                    cur = "1" if ts else "0"
+                    if prev is not None and prev != cur:
+                        if ts:
+                            send(CHAT_ID, f"✅ Toto staat wéér goed: *{m['home']} {sh}-{sa} {m['away']}* "
+                                          f"(jij: {ph_s}-{pa_s})")
+                        else:
+                            send(CHAT_ID, f"⚠️ Let op — je toto staat nu NIET meer goed: "
+                                          f"*{m['home']} {sh}-{sa} {m['away']}* (jij: {ph_s}-{pa_s})")
+                        storage.log_event(f"toto-kantel: {m['home']} {sh}-{sa} {m['away']} -> "
+                                          f"{'goed' if ts else 'mis'}")
+                        print(f"[toto] {m['home']} {sh}-{sa} {m['away']} -> {'goed' if ts else 'mis'}")
+                    storage.set_meta(f"toto_{m['id']}", cur)
 
             # Rust.
             if "HALFTIME" in (m.get("status_name") or "") and not storage.was_sent(m["id"], "ht"):
