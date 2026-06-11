@@ -123,9 +123,10 @@ def _int(v) -> int:
 
 
 def _minute(status: dict) -> int | None:
-    dc = status.get("displayClock")  # bv. "67'"
+    dc = status.get("displayClock")  # bv. "67'" of "45'+2" (blessuretijd)
     if dc:
-        digits = "".join(ch for ch in dc if ch.isdigit())
+        # Alleen het deel vóór de '+' tellen, anders wordt "45'+2" -> 452.
+        digits = "".join(ch for ch in dc.split("+")[0] if ch.isdigit())
         if digits:
             return int(digits)
     return None
