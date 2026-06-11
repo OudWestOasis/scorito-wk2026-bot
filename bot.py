@@ -486,9 +486,143 @@ def cmd_test():
     send(CHAT_ID, "🤖 Bot is live (cloud). Klaar voor het WK.")
 
 
+# ---- dagelijks e-mail-overzicht --------------------------------------------
+
+def build_daily_email() -> tuple[str, str, str]:
+    """Geeft (onderwerp, html, platte_tekst) voor het 08:00-ochtendbericht."""
+    import api_client as api
+    import scoring
+    import storage
+
+    now = datetime.now(AMS)
+    datum = f"{WD[now.weekday()]} {now.strftime('%d-%m-%Y')}"
+    total = storage.get_total()
+
+    # Verleden (afgeronde wedstrijden) uit de geschiedenis.
+    ft = [t for _, t in storage.recent_events(200) if t.startswith("FT:")]
+    exact = sum(1 for t in ft if "Exacte" in t)
+    toto = sum(1 for t in ft if "Toto goed" in t)
+
+    # Wedstrijden: vandaag (Amsterdamse datum) en de rest van de week.
+    try:
+        week = api.get_matches_in_days(8)
+    except Exception:
+        week = []
+
+    def _ams(m):
+        return datetime.fromisoformat(m["utc_date"]).astimezone(AMS)
+
+    today, later = [], []
+    for m in week:
+        (today if _ams(m).date() == now.date() else later).append(m)
+
+    def _row(m):
+        phase = scoring.detect_phase(m["utc_date"])
+        ph, pa = _oriented_prediction(find_prediction(m["home"], m["away"]),
+                                      m["home"], m["away"])
+        pred = f"{ph}-{pa}" if ph is not None else "—"
+        picks = [s["name"] for s in _phase_scorers(phase)
+                 if s["team"] in (m["home"], m["away"])]
+        return _ams(m).strftime("%H:%M"), f"{m['home']} – {m['away']}", pred, picks
+
+    # ---- platte tekst ----
+    tl = [f"Scorito WK — dagoverzicht ({datum})", "",
+          f"Jouw punten: {total}"]
+    if ft:
+        tl.append(f"Tot nu toe: {len(ft)} gespeeld · {exact} exact · {toto} toto goed")
+    tl += ["", "VANDAAG:"]
+    if today:
+        for t, m, pred, picks in map(_row, today):
+            tl.append(f"  {t}  {m}  (jouw {pred})" + (f"  ⭐ {', '.join(picks)}" if picks else ""))
+    else:
+        tl.append("  Geen wedstrijden vandaag.")
+    if later:
+        tl += ["", "DAARNA:"]
+        for m in later[:6]:
+            t, name, pred, _ = _row(m)
+            tl.append(f"  {_ams(m).strftime('%d-%m %H:%M')}  {name}  (jouw {pred})")
+    text = "\n".join(tl)
+
+    # ---- HTML ----
+    def esc(s):
+        return (s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+
+    def html_rows(matches, with_date):
+        out = []
+        for m in matches:
+            t, name, pred, picks = _row(m)
+            when = _ams(m).strftime("%d-%m %H:%M") if with_date else t
+            pickline = (f"<div style='color:#0a7d33;font-size:12px;margin-top:2px'>"
+                        f"⭐ {esc(', '.join(picks))}</div>") if picks else ""
+            out.append(
+                f"<tr><td style='padding:8px 0;border-bottom:1px solid #eee'>"
+                f"<span style='color:#888;font-size:12px'>{when}</span><br>"
+                f"<b>{esc(name)}</b>"
+                f"<span style='color:#444'> — jouw uitslag {esc(pred)}</span>"
+                f"{pickline}</td></tr>")
+        return "".join(out)
+
+    stats = (f"<div style='color:#666;font-size:13px;margin-top:4px'>"
+             f"Tot nu toe: {len(ft)} gespeeld · {exact} exact · {toto} toto goed</div>"
+             if ft else "")
+    today_html = (f"<table style='width:100%;border-collapse:collapse'>{html_rows(today, False)}</table>"
+                  if today else "<div style='color:#666'>Geen wedstrijden vandaag.</div>")
+    later_html = (f"<h3 style='margin:18px 0 6px;font-size:15px'>Daarna</h3>"
+                  f"<table style='width:100%;border-collapse:collapse'>{html_rows(later[:6], True)}</table>"
+                  if later else "")
+
+    html = f"""\
+<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+  <h2 style="margin:0 0 2px">⚽ Scorito WK — dagoverzicht</h2>
+  <div style="color:#888;font-size:13px;margin-bottom:16px">{datum} · Oud-West Oasis</div>
+  <div style="background:#f4f6f8;border-radius:10px;padding:14px 18px;margin-bottom:18px">
+    <div style="font-size:13px;color:#666">Jouw punten</div>
+    <div style="font-size:30px;font-weight:700;line-height:1.1">{total}</div>
+    {stats}
+  </div>
+  <h3 style="margin:0 0 6px;font-size:15px">Vandaag</h3>
+  {today_html}
+  {later_html}
+  <div style="color:#aaa;font-size:11px;margin-top:22px">
+    Automatisch verstuurd om 08:00 · Scorito WK 2026 bot
+  </div>
+</div>"""
+
+    subject = f"⚽ Scorito WK — dagoverzicht {datum}"
+    return subject, html, text
+
+
+def cmd_email(force: bool = False):
+    """Verstuur het dagoverzicht. Standaard alleen rond 08:00 NL en max 1×/dag.
+    `force` (of `python bot.py emailtest`) negeert die checks — voor testen."""
+    import storage
+    from mailer import send_email
+
+    storage.init_db()
+    now = datetime.now(AMS)
+    if not force:
+        if now.hour != 8:
+            print(f"[email] niet 08:00 NL (nu {now.hour}h) — overslaan")
+            return
+        today = now.strftime("%Y-%m-%d")
+        if storage.get_meta("last_email_date") == today:
+            print("[email] vandaag al gemaild — overslaan")
+            return
+    subject, html, text = build_daily_email()
+    send_email(subject, html, text)
+    storage.set_meta("last_email_date", now.strftime("%Y-%m-%d"))
+    storage.log_event(f"dag-mail verstuurd naar {__import__('config').EMAIL_TO}")
+    print(f"[email] verstuurd naar {__import__('config').EMAIL_TO}")
+
+
+def cmd_emailtest():
+    cmd_email(force=True)
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "poll"
     {
         "poll": cmd_poll, "status": cmd_status,
         "demo": cmd_demo, "test": cmd_test,
+        "email": cmd_email, "emailtest": cmd_emailtest,
     }[cmd]()

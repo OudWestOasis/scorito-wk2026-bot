@@ -1,30 +1,30 @@
-name: Scorito poll
+name: Scorito dagmail
 
-# Cron staat in UTC. '*/5 * * * *' = elke 5 minuten, dag en nacht.
-# De bot rekent zelf alle tijden naar Europe/Amsterdam in de berichten,
-# dus voor dit interval-schema is geen tijdzone-omrekening nodig.
-# LET OP: GitHub kan geplande runs vertragen (vaak 5-15 min onder load).
+# 08:00 Europe/Amsterdam. Cron is UTC en kent geen zomertijd, dus twee triggers:
+#   06:00 UTC = 08:00 in zomertijd (CEST)
+#   07:00 UTC = 08:00 in wintertijd (CET)
+# De code (bot.py email) verstuurt alléén als het in NL daadwerkelijk 08:00 is
+# en hooguit 1× per dag — dus de "verkeerde" trigger doet niets.
 on:
   schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch:           # handmatige knop in de Actions-tab
+    - cron: '0 6 * * *'
+    - cron: '0 7 * * *'
+  workflow_dispatch:
     inputs:
       command:
-        description: 'Actie: poll / test / status / demo'
-        default: 'poll'
+        description: 'email (08:00-check) of emailtest (forceer nu)'
+        default: 'email'
         required: false
 
-# Nodig om state.json terug te kunnen committen.
 permissions:
   contents: write
 
-# Voorkom dat twee runs tegelijk de state schrijven.
 concurrency:
-  group: scorito-poll
+  group: scorito-mail
   cancel-in-progress: false
 
 jobs:
-  poll:
+  mail:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,11 +39,15 @@ jobs:
       - name: Dependencies installeren
         run: pip install -r requirements.txt
 
-      - name: Bot draaien
+      - name: Dag-mail draaien
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          BOT_CMD: ${{ github.event.inputs.command || 'poll' }}
+          EMAIL_SMTP_HOST: ${{ secrets.EMAIL_SMTP_HOST }}
+          EMAIL_SMTP_PORT: ${{ secrets.EMAIL_SMTP_PORT }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          BOT_CMD: ${{ github.event.inputs.command || 'email' }}
         run: python bot.py "$BOT_CMD"
 
       - name: State terugcommitten (alleen bij wijziging)

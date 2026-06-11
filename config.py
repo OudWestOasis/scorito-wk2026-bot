@@ -23,6 +23,15 @@ def _env(name: str, default: str = "") -> str:
 TELEGRAM_BOT_TOKEN = _env("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = _env("TELEGRAM_CHAT_ID")
 
+# --- E-mail (dagelijks ochtendbericht) --------------------------------------
+# SMTP-gegevens komen uit Secrets; alleen de ontvanger heeft een vaste default.
+EMAIL_TO = _env("EMAIL_TO", "joris.van.iersel@outlook.com")
+EMAIL_FROM = _env("EMAIL_FROM")          # leeg => valt terug op EMAIL_USER
+EMAIL_SMTP_HOST = _env("EMAIL_SMTP_HOST")
+EMAIL_SMTP_PORT = int(_env("EMAIL_SMTP_PORT", "587"))
+EMAIL_USER = _env("EMAIL_USER")
+EMAIL_PASS = _env("EMAIL_PASS")
+
 # --- Niet-geheime instellingen (met fallback) -------------------------------
 STATE_FILE = _env("STATE_FILE", "state.json")
 # Tijdvenster (minuten) waarin een wedstrijd als "begint zo" geldt voor pre-match.
