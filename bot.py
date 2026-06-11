@@ -340,6 +340,20 @@ def cmd_poll():
 
     storage.init_db()
 
+    # Coördinatie laptop <-> cloud. Draait de laptop (die zet RUN_LOCATION=laptop
+    # en ververst elke minuut een 'heartbeat'), dan gaat de cloud stand-by zodat
+    # er geen dubbele berichten komen. State wordt via git gedeeld.
+    import os as _os
+    import time as _time
+    if _os.environ.get("RUN_LOCATION") != "laptop":
+        hb = _os.environ.get("LAPTOP_HEARTBEAT", "").strip()
+        try:
+            if hb and _time.time() - float(hb) < 180:
+                print("[poll] laptop is actief — cloud staat stand-by")
+                return
+        except ValueError:
+            pass
+
     # 0) Inkomende vragen beantwoorden.
     process_commands()
 

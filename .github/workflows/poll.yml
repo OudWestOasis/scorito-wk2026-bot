@@ -44,6 +44,8 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           BOT_CMD: ${{ github.event.inputs.command || 'poll' }}
+          # Heartbeat van de laptop; is die vers, dan gaat de cloud stand-by.
+          LAPTOP_HEARTBEAT: ${{ vars.LAPTOP_HEARTBEAT }}
         run: python bot.py "$BOT_CMD"
 
       - name: State terugcommitten (alleen bij wijziging)
