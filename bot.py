@@ -444,7 +444,7 @@ def process_commands():
             continue
         # Werkt met én zonder schuine streep (bv. "fastlane" of "/stand").
         is_slash = text.startswith("/")
-        cmd = text.split()[0].lstrip("/").split("@")[0].lower()
+        cmd = text.split()[0].lstrip("/").split("@")[0].lower().strip("!?.,;:")
         reply = _dispatch(cmd)
         # Bij gewone tekst (geen /) alleen reageren als we het herkennen,
         # zodat losse chatberichten geen "onbekend"-antwoord uitlokken.
