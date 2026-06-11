@@ -27,11 +27,15 @@
     [
       "2026-06-11T19:31:52.032448+00:00",
       "inhaal: Mexico 1-0 South Africa"
+    ],
+    [
+      "2026-06-11T22:18:00.860223+00:00",
+      "FT: Mexico 2-0 South Africa → Exacte uitslag 🎯 (+45)"
     ]
   ],
   "last_known_score": {
     "760415": [
-      1,
+      2,
       0
     ]
   },
@@ -40,11 +44,14 @@
     "tg_offset": "736448690",
     "toto_760415": "1"
   },
-  "running_total": {},
+  "running_total": {
+    "group_stage": 45
+  },
   "scorer_goals": {},
   "sent_messages": [
     "760415:pre",
     "760415:catchup",
-    "760415:vibe"
+    "760415:vibe",
+    "760415:post"
   ]
 }
