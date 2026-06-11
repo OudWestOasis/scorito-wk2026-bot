@@ -541,6 +541,16 @@ def cmd_poll():
                 ts = _toto_status(sh, sa, ph, pa)
                 if ts is not None:
                     storage.set_meta(f"toto_{m['id']}", "1" if ts else "0")
+                # Stappen we midden in een lopende wedstrijd in (er is al
+                # gescoord), stuur dan een inhaalbericht met de actuele stand.
+                if (sh or sa) and not storage.was_sent(m["id"], "catchup"):
+                    out = _outlook(sh, sa, ph, pa)
+                    send(CHAT_ID, f"📡 Tussenstand: *{m['home']} {sh}-{sa} {m['away']}* "
+                                  f"({minute or '?'}')\nJouw voorspelling: {ph_s}-{pa_s}"
+                                  + (f"\n{out}" if out else ""))
+                    storage.mark_sent(m["id"], "catchup")
+                    storage.log_event(f"inhaal: {m['home']} {sh}-{sa} {m['away']}")
+                    print(f"[catchup] {m['home']} {sh}-{sa} {m['away']}")
             elif (sh, sa) != last:
                 scorer_name, pick = "onbekend", None
                 try:
