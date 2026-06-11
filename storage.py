@@ -28,6 +28,7 @@ _EMPTY = {
     "running_total": {},
     "last_known_score": {},
     "match_goal_points": {},
+    "scorer_goals": {},
     "meta": {},
     "event_log": [],
 }
@@ -126,6 +127,18 @@ def add_match_goal_points(match_id, points: int) -> None:
 
 def get_match_goal_points(match_id) -> int:
     return _load()["match_goal_points"].get(str(match_id), 0)
+
+
+# ---- doelpunten per topscorer-pick (toernooi-tally) ------------------------
+
+def add_scorer_goal(name: str, n: int = 1) -> None:
+    sg = _load()["scorer_goals"]
+    sg[name] = sg.get(name, 0) + n
+    _save()
+
+
+def get_scorer_goals() -> dict[str, int]:
+    return dict(_load()["scorer_goals"])
 
 
 # ---- key-value (o.a. Telegram-offset) --------------------------------------

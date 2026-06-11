@@ -240,6 +240,57 @@ def build_fastlane() -> str:
     return "\n".join(lines)
 
 
+def build_morning() -> str:
+    """Ochtendbericht: punten + de wedstrijden van vandaag met jouw voorspelling."""
+    import api_client as api
+    import scoring
+    import storage
+
+    now = datetime.now(AMS)
+    datum = f"{WD[now.weekday()]} {now.strftime('%d-%m-%Y')}"
+    lines = ["☀️ *Goedemorgen — Scorito-dagoverzicht*", datum, "",
+             f"Jouw punten: *{storage.get_total()}*", ""]
+    try:
+        week = api.get_matches_in_days(2)
+    except Exception:
+        week = []
+    today = [m for m in week
+             if datetime.fromisoformat(m["utc_date"]).astimezone(AMS).date() == now.date()]
+    if today:
+        lines.append("*Vandaag:*")
+        for m in today:
+            phase = scoring.detect_phase(m["utc_date"])
+            ph, pa = _oriented_prediction(find_prediction(m["home"], m["away"]),
+                                          m["home"], m["away"])
+            pred = f"{ph}-{pa}" if ph is not None else "—"
+            t = datetime.fromisoformat(m["utc_date"]).astimezone(AMS).strftime("%H:%M")
+            lines.append(f"• {t} {m['home']}–{m['away']} (jouw {pred})")
+            picks = [s["name"] for s in _phase_scorers(phase)
+                     if s["team"] in (m["home"], m["away"])]
+            if picks:
+                lines.append(f"   ⭐ {', '.join(picks)}")
+    else:
+        lines.append("Geen wedstrijden vandaag — rustdag. 😎")
+    return "\n".join(lines)
+
+
+def build_picks() -> str:
+    """Jouw 6 topscorer-picks van de huidige fase + hoeveel ze al scoorden."""
+    import scoring
+    import storage
+
+    phase = scoring.detect_phase(datetime.now(AMS).strftime("%Y-%m-%d"))
+    tally = storage.get_scorer_goals()
+    picks = _phase_scorers(phase)
+    lines = [f"⭐ *Jouw topscorer-picks — {PHASE_NL.get(phase, phase)}*", ""]
+    if picks:
+        for s in picks:
+            lines.append(f"• {s['name']} ({s['position']}) — {tally.get(s['name'], 0)} ⚽")
+    else:
+        lines.append("Geen picks voor deze fase.")
+    return "\n".join(lines)
+
+
 def build_log() -> str:
     import storage
     events = storage.recent_events(15)
@@ -260,6 +311,8 @@ def build_help() -> str:
         "🤖 *Scorito-bot — commando's*",
         "",
         "fastlane — overzicht: punten + volgende & komende wedstrijden",
+        "/vandaag — wedstrijden van vandaag + jouw voorspellingen",
+        "/picks — je topscorers + hoeveel ze al scoorden",
         "/stand — subtotaal + punten per fase",
         "/week — komende wedstrijden + wat jij hebt ingevuld",
         "/log — wat de bot allemaal gedaan heeft",
@@ -278,6 +331,10 @@ def _dispatch(cmd: str) -> str:
         return build_help()
     if cmd in ("fastlane", "overzicht", "dashboard"):
         return build_fastlane()
+    if cmd in ("picks", "topscorers", "spitsen"):
+        return build_picks()
+    if cmd in ("vandaag", "ochtend", "morning"):
+        return build_morning()
     if cmd in ("volgende", "next", "voorspelling"):
         return build_next()
     if cmd in ("stand", "totaal", "score", "punten"):
@@ -357,6 +414,17 @@ def cmd_poll():
     # 0) Inkomende vragen beantwoorden.
     process_commands()
 
+    # 0b) Ochtendbericht (08:00 NL), max 1x per dag — wie ook actief is, stuurt het.
+    try:
+        now_ams = datetime.now(AMS)
+        if now_ams.hour == 8 and storage.get_meta("last_morning_date") != now_ams.strftime("%Y-%m-%d"):
+            send(CHAT_ID, build_morning())
+            storage.set_meta("last_morning_date", now_ams.strftime("%Y-%m-%d"))
+            storage.log_event("ochtendbericht verstuurd")
+            print("[morning] verstuurd")
+    except Exception as e:
+        print(f"[morning] error: {e}")
+
     # 1) PRE-MATCH — wedstrijden die binnenkort beginnen.
     try:
         for m in api.get_upcoming_matches(window_minutes=config.PREMATCH_WINDOW_MINUTES):
@@ -377,49 +445,73 @@ def cmd_poll():
     except Exception as e:  # de run mag niet omvallen op één fase
         print(f"[pre] error: {e}")
 
-    # 2) LIVE — bij elk nieuw doelpunt.
+    # 2) LIVE — aftrap, doelpunten, rust en slotfase.
     try:
         for m in api.get_live_matches():
             sh = m["score_home"] or 0
             sa = m["score_away"] or 0
-            last = storage.get_last_score(m["id"])
-            if last is None:
-                storage.set_last_score(m["id"], sh, sa)
-                continue
-            if (sh, sa) == last:
-                continue
-
+            minute = m.get("minute")
             phase = scoring.detect_phase(m["utc_date"])
             pred = find_prediction(m["home"], m["away"])
             ph, pa = _oriented_prediction(pred, m["home"], m["away"])
+            ph_s = ph if ph is not None else "?"
+            pa_s = pa if pa is not None else "?"
 
-            scorer_name, pick = "onbekend", None
-            try:
-                scorers = api.get_match_scorers(m["id"])
-                if scorers:
-                    scorer_name = scorers[-1]["player"]
-                    pick = _match_pick(scorer_name, scorers[-1]["team"], phase)
-            except Exception as e:
-                print(f"[live] scorers error: {e}")
+            # Aftrap (alleen als we er vroeg bij zijn).
+            if minute is not None and minute <= 15 and not storage.was_sent(m["id"], "kick"):
+                send(CHAT_ID, f"⚽ Afgetrapt: *{m['home']} – {m['away']}*\n"
+                              f"Jouw voorspelling: *{ph_s}-{pa_s}*")
+                storage.mark_sent(m["id"], "kick")
+                print(f"[kick] {m['home']}-{m['away']}")
 
-            mtype = f"goal_{sh}-{sa}"
-            if not storage.was_sent(m["id"], mtype):
-                goal_pts = scoring.score_goal(pick["position"], phase) if pick else 0
-                if pick:
-                    storage.add_points(phase, goal_pts)
-                    storage.add_match_goal_points(m["id"], goal_pts)
-                text = fmt_goal(
-                    m["home"], m["away"], sh, sa, m["minute"] or "?",
-                    scorer_name, pick is not None,
-                    ph if ph is not None else "?", pa if pa is not None else "?",
-                    goal_pts, _outlook(sh, sa, ph, pa), storage.get_total(),
-                )
-                send(CHAT_ID, text)
-                storage.mark_sent(m["id"], mtype)
-                tag = f" ⭐{scorer_name} +{goal_pts}" if pick else ""
-                storage.log_event(f"goal: {m['home']} {sh}-{sa} {m['away']}{tag}")
-                print(f"[goal] {m['home']} {sh}-{sa} {m['away']}{tag}")
-            storage.set_last_score(m["id"], sh, sa)
+            # Doelpunt-detectie.
+            last = storage.get_last_score(m["id"])
+            if last is None:
+                storage.set_last_score(m["id"], sh, sa)
+            elif (sh, sa) != last:
+                scorer_name, pick = "onbekend", None
+                try:
+                    scorers = api.get_match_scorers(m["id"])
+                    if scorers:
+                        scorer_name = scorers[-1]["player"]
+                        pick = _match_pick(scorer_name, scorers[-1]["team"], phase)
+                except Exception as e:
+                    print(f"[live] scorers error: {e}")
+
+                mtype = f"goal_{sh}-{sa}"
+                if not storage.was_sent(m["id"], mtype):
+                    goal_pts = scoring.score_goal(pick["position"], phase) if pick else 0
+                    if pick:
+                        storage.add_points(phase, goal_pts)
+                        storage.add_match_goal_points(m["id"], goal_pts)
+                        storage.add_scorer_goal(pick["name"])
+                    send(CHAT_ID, fmt_goal(
+                        m["home"], m["away"], sh, sa, minute or "?",
+                        scorer_name, pick is not None, ph_s, pa_s,
+                        goal_pts, _outlook(sh, sa, ph, pa), storage.get_total(),
+                    ))
+                    storage.mark_sent(m["id"], mtype)
+                    tag = f" ⭐{scorer_name} +{goal_pts}" if pick else ""
+                    storage.log_event(f"goal: {m['home']} {sh}-{sa} {m['away']}{tag}")
+                    print(f"[goal] {m['home']} {sh}-{sa} {m['away']}{tag}")
+                storage.set_last_score(m["id"], sh, sa)
+
+            # Rust.
+            if "HALFTIME" in (m.get("status_name") or "") and not storage.was_sent(m["id"], "ht"):
+                out = _outlook(sh, sa, ph, pa)
+                send(CHAT_ID, f"⏸️ Rust: *{m['home']} {sh}-{sa} {m['away']}*\n"
+                              f"Jouw voorspelling: {ph_s}-{pa_s}" + (f"\n{out}" if out else ""))
+                storage.mark_sent(m["id"], "ht")
+                print(f"[ht] {m['home']} {sh}-{sa} {m['away']}")
+
+            # Slotfase (rond 80').
+            if minute is not None and 80 <= minute < 92 and not storage.was_sent(m["id"], "min80"):
+                out = _outlook(sh, sa, ph, pa)
+                send(CHAT_ID, f"⏱️ {minute}' — *{m['home']} {sh}-{sa} {m['away']}*\n"
+                              f"Jouw voorspelling: {ph_s}-{pa_s}"
+                              + (f"\n{out}" if out else "") + "\nLaatste fase!")
+                storage.mark_sent(m["id"], "min80")
+                print(f"[80] {m['home']} {sh}-{sa} {m['away']}")
     except Exception as e:
         print(f"[live] error: {e}")
 

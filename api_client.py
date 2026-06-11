@@ -92,7 +92,8 @@ def _parse_event(ev: dict) -> dict:
             home = c
         elif c.get("homeAway") == "away":
             away = c
-    state = (((ev.get("status") or {}).get("type") or {}).get("state") or "").lower()
+    stype = ((ev.get("status") or {}).get("type") or {})
+    state = (stype.get("state") or "").lower()
     status = {"pre": "SCHEDULED", "in": "IN_PLAY", "post": "FINISHED"}.get(state, "SCHEDULED")
     return {
         "id": str(ev.get("id")),
@@ -100,6 +101,7 @@ def _parse_event(ev: dict) -> dict:
         "away": normalize_team((away.get("team") or {}).get("displayName", "")),
         "utc_date": _iso(ev.get("date")),
         "status": status,
+        "status_name": stype.get("name", ""),   # bv. STATUS_HALFTIME, STATUS_FIRST_HALF
         "score_home": _int(home.get("score")),
         "score_away": _int(away.get("score")),
         "minute": _minute(ev.get("status") or {}),
