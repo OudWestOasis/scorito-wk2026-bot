@@ -55,8 +55,10 @@ def fmt_prematch(home, away, kickoff, pred_h, pred_a, phase_scorers):
 
 
 def fmt_goal(home, away, score_h, score_a, minute, scorer, is_my_pick,
-             pred_h, pred_a, goal_points=0, outlook="", running_total=None):
-    lines = [f"⚡ GOAL! *{home} {score_h}-{score_a} {away}* ({minute}')"]
+             pred_h, pred_a, goal_points=0, outlook="", running_total=None, hype=""):
+    opener = (f"*{hype}* {home} {score_h}-{score_a} {away} ({minute}')" if hype
+              else f"⚡ GOAL! *{home} {score_h}-{score_a} {away}* ({minute}')")
+    lines = [opener]
     if is_my_pick:
         lines.append(f"Scorer: *{scorer}* ⭐ jouw topscorer-pick! +{goal_points} pt")
     else:

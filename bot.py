@@ -14,6 +14,7 @@ In Telegram kun je de bot vragen stellen:
     /help    overzicht
 """
 import json
+import random
 import sys
 import unicodedata
 from datetime import datetime
@@ -35,6 +36,7 @@ CHAT_ID = config.TELEGRAM_CHAT_ID
 
 AMS = ZoneInfo("Europe/Amsterdam")
 WD = ["ma", "di", "wo", "do", "vr", "za", "zo"]
+HYPE_WORDS = ["PFFF", "Besef", "Bruut", "Brutal", "Lethal"]
 PHASE_NL = {
     "group_stage": "Groepsfase", "round_of_32": "Laatste 32",
     "round_of_16": "Achtste finale", "quarterfinal": "Kwartfinale",
@@ -557,6 +559,7 @@ def cmd_poll():
                         m["home"], m["away"], sh, sa, minute or "?",
                         scorer_name, pick is not None, ph_s, pa_s,
                         goal_pts, _outlook(sh, sa, ph, pa), storage.get_total(),
+                        hype=random.choice(HYPE_WORDS),
                     ))
                     storage.mark_sent(m["id"], mtype)
                     tag = f" ⭐{scorer_name} +{goal_pts}" if pick else ""
@@ -661,10 +664,12 @@ def cmd_demo():
     send(CHAT_ID, fmt_goal(
         "Spain", "Cape Verde", 1, 0, 23, "Lamine Yamal", True,
         3, 0, goal_points=16, outlook=_outlook(1, 0, 3, 0), running_total=16,
+        hype="Bruut",
     ))
     send(CHAT_ID, fmt_goal(
         "Spain", "Cape Verde", 1, 1, 41, "Ryan Mendes", False,
         3, 0, outlook=_outlook(1, 1, 3, 0), running_total=16,
+        hype="PFFF",
     ))
     send(CHAT_ID, fmt_postmatch(
         "Spain", "Cape Verde", 3, 0, 3, 0,
