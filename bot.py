@@ -90,6 +90,13 @@ def _outlook(sh, sa, ph, pa) -> str:
     return "📉 Nu nog niet jouw voorspelling"
 
 
+def _celebration(label: str, total: int) -> str:
+    """Hype-kreet wanneer je gelijk had — jouw 'Fastlane!'."""
+    if "Exacte" in label:
+        return f"🎉🚀 *FASTLANE!* Exacte uitslag — {total} punten binnen! 🔥"
+    return f"🎉 *Fastlane!* Toto goed — +{total} punten! 👏"
+
+
 def _toto_status(sh, sa, ph, pa):
     """True = jouw toto (1X2-richting) klopt nu, False = niet, None = geen voorspelling."""
     if ph is None or pa is None:
@@ -621,6 +628,8 @@ def cmd_poll():
                 ph if ph is not None else "?", pa if pa is not None else "?",
                 match_pts, label, storage.get_total(), scoring_pts,
             )
+            if match_pts > 0:  # je had gelijk -> Fastlane!
+                text = _celebration(label, match_pts + scoring_pts) + "\n\n" + text
             send(CHAT_ID, text)
             storage.mark_sent(m["id"], "post")
             storage.set_last_score(m["id"], sh, sa)
