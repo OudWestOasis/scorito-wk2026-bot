@@ -37,6 +37,8 @@ CHAT_ID = config.TELEGRAM_CHAT_ID
 AMS = ZoneInfo("Europe/Amsterdam")
 WD = ["ma", "di", "wo", "do", "vr", "za", "zo"]
 HYPE_WORDS = ["PFFF", "Besef", "Bruut", "Brutal", "Lethal"]
+# Losse, spontane kreetjes (af en toe als los bericht tijdens een wedstrijd).
+VIBE_WORDS = ["Pfff", "Bruut man", "Brutal", "Lethal", "Besef man"]
 PHASE_NL = {
     "group_stage": "Groepsfase", "round_of_32": "Laatste 32",
     "round_of_16": "Achtste finale", "quarterfinal": "Kwartfinale",
@@ -600,6 +602,14 @@ def cmd_poll():
                               + (f"\n{out}" if out else "") + "\nLaatste fase!")
                 storage.mark_sent(m["id"], "min80")
                 print(f"[80] {m['home']} {sh}-{sa} {m['away']}")
+
+            # Spontane hype: af en toe (max 1x per wedstrijd) een los kreetje.
+            if (minute is not None and 1 <= minute < 90
+                    and not storage.was_sent(m["id"], "vibe")
+                    and random.random() < 0.12):
+                send(CHAT_ID, random.choice(VIBE_WORDS))
+                storage.mark_sent(m["id"], "vibe")
+                print(f"[vibe] {m['home']}-{m['away']}")
     except Exception as e:
         print(f"[live] error: {e}")
 
