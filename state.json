@@ -39,6 +39,10 @@
     [
       "2026-06-12T06:38:47.810795+00:00",
       "FT: South Korea 2-1 Czechia → Geen punten (+0)"
+    ],
+    [
+      "2026-06-12T21:09:20.625701+00:00",
+      "FT: Canada 1-1 Bosnia → Exacte uitslag 🎯 (+45)"
     ]
   ],
   "last_known_score": {
@@ -51,8 +55,8 @@
       0
     ],
     "760416": [
-      0,
-      0
+      1,
+      1
     ]
   },
   "match_goal_points": {},
@@ -64,7 +68,7 @@
     "toto_760416": "1"
   },
   "running_total": {
-    "group_stage": 45
+    "group_stage": 90
   },
   "scorer_goals": {},
   "sent_messages": [
@@ -73,6 +77,7 @@
     "760415:vibe",
     "760415:post",
     "760414:ht",
-    "760414:post"
+    "760414:post",
+    "760416:post"
   ]
 }
