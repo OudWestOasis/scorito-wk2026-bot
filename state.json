@@ -49,6 +49,10 @@
     "760415": [
       2,
       0
+    ],
+    "760416": [
+      0,
+      0
     ]
   },
   "match_goal_points": {},
@@ -56,7 +60,8 @@
     "last_morning_date": "2026-06-12",
     "tg_offset": "736448690",
     "toto_760414": "1",
-    "toto_760415": "1"
+    "toto_760415": "1",
+    "toto_760416": "1"
   },
   "running_total": {
     "group_stage": 45
