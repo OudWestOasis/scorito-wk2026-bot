@@ -43,6 +43,10 @@
     [
       "2026-06-12T21:09:20.625701+00:00",
       "FT: Canada 1-1 Bosnia → Exacte uitslag 🎯 (+45)"
+    ],
+    [
+      "2026-06-13T04:44:48.191137+00:00",
+      "FT: USA 4-1 Paraguay → Toto goed ✅ (+30)"
     ]
   ],
   "last_known_score": {
@@ -57,6 +61,10 @@
     "760416": [
       1,
       1
+    ],
+    "760417": [
+      4,
+      1
     ]
   },
   "match_goal_points": {},
@@ -68,7 +76,7 @@
     "toto_760416": "1"
   },
   "running_total": {
-    "group_stage": 90
+    "group_stage": 120
   },
   "scorer_goals": {},
   "sent_messages": [
@@ -78,6 +86,7 @@
     "760415:post",
     "760414:ht",
     "760414:post",
-    "760416:post"
+    "760416:post",
+    "760417:post"
   ]
 }
