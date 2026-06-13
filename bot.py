@@ -140,8 +140,33 @@ def _match_pick(scorer_name: str, team: str, phase: str):
 
 # ---- tekstopbouw voor commando's -------------------------------------------
 
+def recompute_total() -> int:
+    """Herbereken het totaal deterministisch uit de vastgelegde wedstrijden +
+    de huidige voorspellingen. Zelf-herstellend bij een voorspelling-correctie
+    en immuun voor dubbeltellen of state-drift."""
+    import scoring
+    import storage
+    per_phase: dict[str, int] = {}
+    for r in storage.get_matches().values():
+        phase = r.get("phase")
+        if not phase:
+            continue
+        pts = r.get("goal_pts", 0)
+        if r.get("ah") is not None and r.get("aw") is not None:
+            ph, pa = _oriented_prediction(find_prediction(r["home"], r["away"]),
+                                          r["home"], r["away"])
+            if ph is not None:
+                ms = scoring.MatchScore(r["home"], r["away"], r["ah"], r["aw"],
+                                        ph, pa, phase)
+                pts += scoring.score_match(ms)[0]
+        per_phase[phase] = per_phase.get(phase, 0) + pts
+    storage.set_running_total(per_phase)
+    return sum(per_phase.values())
+
+
 def build_status() -> str:
     import storage
+    recompute_total()  # altijd vers, ook los van de poll
     breakdown = storage.phase_breakdown()
     lines = ["📊 *Scorito-stand — Oud-West Oasis*", ""]
     if breakdown:
@@ -481,7 +506,10 @@ def cmd_poll():
         except ValueError:
             pass
 
-    # 0) Inkomende vragen beantwoorden.
+    # 0) Totaal vers herberekenen (zelf-herstellend bij data-correcties).
+    recompute_total()
+
+    # 0a) Inkomende vragen beantwoorden.
     process_commands()
 
     # 0b) Ochtendbericht (08:00 NL), max 1x per dag — wie ook actief is, stuurt het.
@@ -565,9 +593,9 @@ def cmd_poll():
                 if not storage.was_sent(m["id"], mtype):
                     goal_pts = scoring.score_goal(pick["position"], phase) if pick else 0
                     if pick:
-                        storage.add_points(phase, goal_pts)
-                        storage.add_match_goal_points(m["id"], goal_pts)
+                        storage.record_match_goals(m["id"], m["home"], m["away"], phase, goal_pts)
                         storage.add_scorer_goal(pick["name"])
+                        recompute_total()
                     send(CHAT_ID, fmt_goal(
                         m["home"], m["away"], sh, sa, minute or "?",
                         scorer_name, pick is not None, ph_s, pa_s,
@@ -644,8 +672,10 @@ def cmd_poll():
                     pred_home=ph, pred_away=pa, phase=phase,
                 )
                 match_pts, label = scoring.score_match(ms)
-                storage.add_points(phase, match_pts)
 
+            # Uitslag vastleggen; het totaal wordt deterministisch herberekend.
+            storage.record_result(m["id"], m["home"], m["away"], phase, sh, sa)
+            recompute_total()
             scoring_pts = storage.get_match_goal_points(m["id"])
             text = fmt_postmatch(
                 m["home"], m["away"], sh, sa,

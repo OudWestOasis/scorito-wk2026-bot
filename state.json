@@ -76,6 +76,40 @@
     ]
   },
   "match_goal_points": {},
+  "matches": {
+    "760414": {
+      "ah": 2,
+      "aw": 1,
+      "away": "Czechia",
+      "goal_pts": 0,
+      "home": "South Korea",
+      "phase": "group_stage"
+    },
+    "760415": {
+      "ah": 2,
+      "aw": 0,
+      "away": "South Africa",
+      "goal_pts": 0,
+      "home": "Mexico",
+      "phase": "group_stage"
+    },
+    "760416": {
+      "ah": 1,
+      "aw": 1,
+      "away": "Bosnia",
+      "goal_pts": 0,
+      "home": "Canada",
+      "phase": "group_stage"
+    },
+    "760417": {
+      "ah": 4,
+      "aw": 1,
+      "away": "Paraguay",
+      "goal_pts": 0,
+      "home": "USA",
+      "phase": "group_stage"
+    }
+  },
   "meta": {
     "last_morning_date": "2026-06-12",
     "tg_offset": "736448690",
@@ -85,7 +119,7 @@
     "toto_760420": "1"
   },
   "running_total": {
-    "group_stage": 120
+    "group_stage": 150
   },
   "scorer_goals": {},
   "sent_messages": [

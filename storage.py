@@ -25,9 +25,10 @@ import config
 _PATH = Path(config.STATE_FILE)
 _EMPTY = {
     "sent_messages": [],
-    "running_total": {},
+    "running_total": {},          # AFGELEID (herberekend uit 'matches'); niet handmatig optellen
     "last_known_score": {},
-    "match_goal_points": {},
+    "matches": {},                # {mid: {home, away, phase, ah, aw, goal_pts}}
+    "match_goal_points": {},      # legacy; vervangen door 'matches'
     "scorer_goals": {},
     "meta": {},
     "event_log": [],
@@ -99,10 +100,13 @@ def set_last_score(match_id, home: int, away: int) -> None:
 
 # ---- lopende totaalscore ---------------------------------------------------
 
-def add_points(phase: str, points: int) -> None:
+def set_running_total(per_phase: dict) -> None:
+    """Vervang het (afgeleide) totaal. Schrijft alleen weg bij wijziging."""
     rt = _load()["running_total"]
-    rt[phase] = rt.get(phase, 0) + points
-    _save()
+    new = {k: v for k, v in per_phase.items()}
+    if rt != new:
+        _load()["running_total"] = new
+        _save()
 
 
 def get_phase_total(phase: str) -> int:
@@ -117,16 +121,35 @@ def phase_breakdown() -> dict[str, int]:
     return dict(sorted(_load()["running_total"].items()))
 
 
-# ---- topscorer-punten per wedstrijd ----------------------------------------
+# ---- per-wedstrijd records (bron van waarheid voor het totaal) -------------
 
-def add_match_goal_points(match_id, points: int) -> None:
-    mp = _load()["match_goal_points"]
-    mp[str(match_id)] = mp.get(str(match_id), 0) + points
+def _touch_match(mid, home, away, phase) -> dict:
+    ms = _load()["matches"]
+    e = ms.setdefault(str(mid), {"home": home, "away": away, "phase": phase,
+                                 "ah": None, "aw": None, "goal_pts": 0})
+    e["home"], e["away"], e["phase"] = home, away, phase
+    return e
+
+
+def record_match_goals(mid, home, away, phase, points: int) -> None:
+    """Tel topscorer-punten op bij een (lopende) wedstrijd."""
+    _touch_match(mid, home, away, phase)["goal_pts"] += points
     _save()
 
 
+def record_result(mid, home, away, phase, ah: int, aw: int) -> None:
+    """Leg de einduitslag vast (voor herberekening van het totaal)."""
+    e = _touch_match(mid, home, away, phase)
+    e["ah"], e["aw"] = ah, aw
+    _save()
+
+
+def get_matches() -> dict:
+    return {k: dict(v) for k, v in _load()["matches"].items()}
+
+
 def get_match_goal_points(match_id) -> int:
-    return _load()["match_goal_points"].get(str(match_id), 0)
+    return _load()["matches"].get(str(match_id), {}).get("goal_pts", 0)
 
 
 # ---- doelpunten per topscorer-pick (toernooi-tally) ------------------------

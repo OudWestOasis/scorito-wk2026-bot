@@ -57,6 +57,10 @@ jobs:
             echo "Geen state-wijziging — niets te committen."
           else
             git commit -m "chore: update state [skip ci]"
-            git pull --rebase --autostash origin main || true
-            git push
+            # Geen rebase (kan conflictmarkers achterlaten). Bij afwijzing wint
+            # origin en herstelt de volgende run; nooit corrupte state.
+            if ! git push; then
+              git fetch origin
+              git reset --hard origin/main
+            fi
           fi

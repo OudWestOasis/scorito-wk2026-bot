@@ -9,8 +9,9 @@ $gh   = 'C:\Program Files\GitHub CLI\gh.exe'
 $slug = 'OudWestOasis/scorito-wk2026-bot'
 Set-Location $repo
 
-# 1) Laatste state van de cloud ophalen (gedeeld geheugen).
-git pull --rebase --autostash origin main *> $null
+# 1) Schone basis = origin (nooit rebase -> nooit conflictmarkers/corruptie).
+git fetch origin *> $null
+git reset --hard origin/main *> $null
 
 # 2) Heartbeat verversen -> de cloud ziet 'laptop is actief' en gaat stand-by.
 $epoch = [int][math]::Floor(((Get-Date).ToUniversalTime() - [datetime]'1970-01-01').TotalSeconds)
@@ -20,11 +21,15 @@ $epoch = [int][math]::Floor(((Get-Date).ToUniversalTime() - [datetime]'1970-01-0
 $env:RUN_LOCATION = 'laptop'
 & $py bot.py poll *>> "$repo\bot.log"
 
-# 4) State terugpushen naar de cloud, alleen als er iets veranderd is.
+# 4) State terugpushen, alleen bij wijziging. Bij afwijzing: origin wint,
+#    deze ronde valt weg en de volgende poll herstelt (geen merge-conflict).
 git add state.json 2>$null
 git diff --cached --quiet
 if ($LASTEXITCODE -ne 0) {
     git commit -m "chore: update state (laptop) [skip ci]" *> $null
-    git pull --rebase --autostash origin main *> $null
     git push *> $null
+    if ($LASTEXITCODE -ne 0) {
+        git fetch origin *> $null
+        git reset --hard origin/main *> $null
+    }
 }

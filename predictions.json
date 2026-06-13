@@ -11,7 +11,7 @@
       "teams": ["Mexico", "South Africa", "South Korea", "Czechia"],
       "matches": [
         {"home": "Mexico", "away": "South Africa", "pred_home": 2, "pred_away": 0},
-        {"home": "South Korea", "away": "Czechia", "pred_home": 1, "pred_away": 1},
+        {"home": "South Korea", "away": "Czechia", "pred_home": 1, "pred_away": 0},
         {"home": "Mexico", "away": "Czechia", "pred_home": 1, "pred_away": 1},
         {"home": "South Korea", "away": "South Africa", "pred_home": 2, "pred_away": 1},
         {"home": "South Africa", "away": "Czechia", "pred_home": 0, "pred_away": 1},
