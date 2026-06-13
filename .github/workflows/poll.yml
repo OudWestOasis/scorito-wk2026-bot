@@ -57,10 +57,17 @@ jobs:
             echo "Geen state-wijziging — niets te committen."
           else
             git commit -m "chore: update state [skip ci]"
-            # Geen rebase (kan conflictmarkers achterlaten). Bij afwijzing wint
-            # origin en herstelt de volgende run; nooit corrupte state.
+            # Geen rebase (kan conflictmarkers achterlaten). Bij afwijzing:
+            # veilig samenvoegen (append-only velden), nooit corruptie.
             if ! git push; then
               git fetch origin
-              git reset --hard origin/main
+              python merge_state.py || true
+              git reset --soft origin/main
+              git add state.json
+              git commit -m "chore: merge state [skip ci]"
+              if ! git push; then
+                git fetch origin
+                git reset --hard origin/main
+              fi
             fi
           fi

@@ -140,18 +140,41 @@ def _match_pick(scorer_name: str, team: str, phase: str):
 
 # ---- tekstopbouw voor commando's -------------------------------------------
 
+def _derive_goal_pts(scorers, phase) -> int:
+    """Topscorer-punten herleiden uit een scorerslijst + de huidige picks.
+    Bron van waarheid voor afgeronde wedstrijden (multi-goal/VAR-bestendig)."""
+    import scoring
+    total = 0
+    for s in scorers or []:
+        if isinstance(s, (list, tuple)):
+            player = s[0] if len(s) > 0 else ""
+            team = s[1] if len(s) > 1 else ""
+        else:
+            player, team = s.get("player", ""), s.get("team", "")
+        pick = _match_pick(player, team, phase)
+        if pick:
+            total += scoring.score_goal(pick["position"], phase)
+    return total
+
+
 def recompute_total() -> int:
     """Herbereken het totaal deterministisch uit de vastgelegde wedstrijden +
-    de huidige voorspellingen. Zelf-herstellend bij een voorspelling-correctie
-    en immuun voor dubbeltellen of state-drift."""
+    de huidige voorspellingen/picks. Zelf-herstellend bij een correctie en
+    immuun voor dubbeltellen of state-drift — zowel uitslag- als topscorer-punten."""
     import scoring
     import storage
     per_phase: dict[str, int] = {}
     for r in storage.get_matches().values():
         phase = r.get("phase")
         if not phase:
+            print(f"[recompute] match zonder phase overgeslagen: {r}")
             continue
-        pts = r.get("goal_pts", 0)
+        # Topscorer-punten: herleid uit de definitieve scorerslijst als die er is
+        # (zelf-herstellend), anders de live-accumulator.
+        if r.get("scorers") is not None:
+            pts = _derive_goal_pts(r["scorers"], phase)
+        else:
+            pts = r.get("goal_pts", 0)
         if r.get("ah") is not None and r.get("aw") is not None:
             ph, pa = _oriented_prediction(find_prediction(r["home"], r["away"]),
                                           r["home"], r["away"])
@@ -673,8 +696,18 @@ def cmd_poll():
                 )
                 match_pts, label = scoring.score_match(ms)
 
-            # Uitslag vastleggen; het totaal wordt deterministisch herberekend.
-            storage.record_result(m["id"], m["home"], m["away"], phase, sh, sa)
+            # Definitieve scorerslijst ophalen -> topscorer-punten herleidbaar
+            # (multi-goal/VAR-bestendig). Uitslag + scorers vastleggen, dan
+            # het totaal deterministisch herberekenen.
+            ft_scorers = []
+            try:
+                ft_scorers = [[s["player"], s["team"]]
+                              for s in api.get_match_scorers(m["id"])]
+            except Exception as e:
+                print(f"[post] scorers error: {e}")
+            derived_gp = _derive_goal_pts(ft_scorers, phase)
+            storage.record_result(m["id"], m["home"], m["away"], phase, sh, sa,
+                                   scorers=ft_scorers, goal_pts=derived_gp)
             recompute_total()
             scoring_pts = storage.get_match_goal_points(m["id"])
             text = fmt_postmatch(

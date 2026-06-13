@@ -29,7 +29,17 @@ if ($LASTEXITCODE -ne 0) {
     git commit -m "chore: update state (laptop) [skip ci]" *> $null
     git push *> $null
     if ($LASTEXITCODE -ne 0) {
+        # Botsing: veilig samenvoegen (geen dubbele berichten / offset-rollback).
         git fetch origin *> $null
-        git reset --hard origin/main *> $null
+        & $py merge_state.py *> $null
+        git reset --soft origin/main *> $null
+        git add state.json 2>$null
+        git commit -m "chore: merge state (laptop) [skip ci]" *> $null
+        git push *> $null
+        if ($LASTEXITCODE -ne 0) {
+            # Laatste redmiddel: origin wint (nooit corruptie).
+            git fetch origin *> $null
+            git reset --hard origin/main *> $null
+        }
     }
 }

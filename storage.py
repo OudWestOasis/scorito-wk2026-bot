@@ -137,10 +137,17 @@ def record_match_goals(mid, home, away, phase, points: int) -> None:
     _save()
 
 
-def record_result(mid, home, away, phase, ah: int, aw: int) -> None:
-    """Leg de einduitslag vast (voor herberekening van het totaal)."""
+def record_result(mid, home, away, phase, ah: int, aw: int,
+                  scorers=None, goal_pts=None) -> None:
+    """Leg de einduitslag vast. Sla de definitieve scorerslijst op zodat
+    topscorer-punten (net als de uitslag-punten) herberekenbaar/zelf-herstellend
+    zijn — niet afhankelijk van de live-accumulator."""
     e = _touch_match(mid, home, away, phase)
     e["ah"], e["aw"] = ah, aw
+    if scorers is not None:
+        e["scorers"] = scorers          # [[player, team], ...]
+    if goal_pts is not None:
+        e["goal_pts"] = goal_pts
     _save()
 
 
