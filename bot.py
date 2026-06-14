@@ -92,7 +92,7 @@ def _outlook(sh, sa, ph, pa) -> str:
     if (sh, sa) == (ph, pa):
         return "📈 Precies jouw voorspelling!"
     if _result(sh, sa) == _result(ph, pa):
-        return "📈 Toto-richting klopt (zo blijft het goed)"
+        return "📈 Juiste uitkomst — zo blijft het goed"
     return "📉 Nu nog niet jouw voorspelling"
 
 
@@ -100,7 +100,7 @@ def _celebration(label: str, total: int) -> str:
     """Hype-kreet wanneer je gelijk had — jouw 'Fastlane!'."""
     if "Exacte" in label:
         return f"🎉🚀 *FASTLANE!* Exacte uitslag — {total} punten binnen! 🔥"
-    return f"🎉 *Fastlane!* Toto goed — +{total} punten! 👏"
+    return f"🎉 *Fastlane!* Juiste uitkomst — +{total} punten! 👏"
 
 
 def _toto_status(sh, sa, ph, pa):
@@ -268,8 +268,8 @@ def build_fastlane() -> str:
     ft = [t for _, t in storage.recent_events(200) if t.startswith("FT:")]
     if ft:
         exact = sum(1 for t in ft if "Exacte" in t)
-        toto = sum(1 for t in ft if "Toto goed" in t)
-        lines.append(f"Gespeeld: {len(ft)} · exact {exact} · toto {toto}")
+        juist = sum(1 for t in ft if "Juiste uitkomst" in t or "Toto goed" in t)
+        lines.append(f"Gespeeld: {len(ft)} · exact {exact} · juiste uitkomst {juist}")
 
     # Eerstvolgende wedstrijd + jouw voorspelling.
     try:
@@ -632,21 +632,21 @@ def cmd_poll():
                     print(f"[goal] {m['home']} {sh}-{sa} {m['away']}{tag}")
                 storage.set_last_score(m["id"], sh, sa)
 
-                # Toto-kantel-alarm: los seintje als je voorspelling van goed<->mis wisselt.
+                # Kantel-alarm: los seintje als je uitkomst van goed<->mis wisselt.
                 ts = _toto_status(sh, sa, ph, pa)
                 if ts is not None:
                     prev = storage.get_meta(f"toto_{m['id']}")
                     cur = "1" if ts else "0"
                     if prev is not None and prev != cur:
                         if ts:
-                            send(CHAT_ID, f"✅ Toto staat wéér goed: *{m['home']} {sh}-{sa} {m['away']}* "
-                                          f"(jij: {ph_s}-{pa_s})")
-                        else:
-                            send(CHAT_ID, f"⚠️ Let op — je toto staat nu NIET meer goed: "
+                            send(CHAT_ID, f"✅ Je zit wéér op de juiste uitkomst: "
                                           f"*{m['home']} {sh}-{sa} {m['away']}* (jij: {ph_s}-{pa_s})")
-                        storage.log_event(f"toto-kantel: {m['home']} {sh}-{sa} {m['away']} -> "
+                        else:
+                            send(CHAT_ID, f"⚠️ Let op — je zit nu NIET meer op de juiste uitkomst: "
+                                          f"*{m['home']} {sh}-{sa} {m['away']}* (jij: {ph_s}-{pa_s})")
+                        storage.log_event(f"kantel: {m['home']} {sh}-{sa} {m['away']} -> "
                                           f"{'goed' if ts else 'mis'}")
-                        print(f"[toto] {m['home']} {sh}-{sa} {m['away']} -> {'goed' if ts else 'mis'}")
+                        print(f"[kantel] {m['home']} {sh}-{sa} {m['away']} -> {'goed' if ts else 'mis'}")
                     storage.set_meta(f"toto_{m['id']}", cur)
 
             # Rust.
@@ -784,7 +784,7 @@ def build_daily_email() -> tuple[str, str, str]:
     # Verleden (afgeronde wedstrijden) uit de geschiedenis.
     ft = [t for _, t in storage.recent_events(200) if t.startswith("FT:")]
     exact = sum(1 for t in ft if "Exacte" in t)
-    toto = sum(1 for t in ft if "Toto goed" in t)
+    toto = sum(1 for t in ft if "Juiste uitkomst" in t or "Toto goed" in t)
 
     # Wedstrijden: vandaag (Amsterdamse datum) en de rest van de week.
     try:
@@ -812,7 +812,7 @@ def build_daily_email() -> tuple[str, str, str]:
     tl = [f"Scorito WK — dagoverzicht ({datum})", "",
           f"Jouw punten: {total}"]
     if ft:
-        tl.append(f"Tot nu toe: {len(ft)} gespeeld · {exact} exact · {toto} toto goed")
+        tl.append(f"Tot nu toe: {len(ft)} gespeeld · {exact} exact · {toto} juiste uitkomst")
     tl += ["", "VANDAAG:"]
     if today:
         for t, m, pred, picks in map(_row, today):
@@ -846,7 +846,7 @@ def build_daily_email() -> tuple[str, str, str]:
         return "".join(out)
 
     stats = (f"<div style='color:#666;font-size:13px;margin-top:4px'>"
-             f"Tot nu toe: {len(ft)} gespeeld · {exact} exact · {toto} toto goed</div>"
+             f"Tot nu toe: {len(ft)} gespeeld · {exact} exact · {toto} juiste uitkomst</div>"
              if ft else "")
     today_html = (f"<table style='width:100%;border-collapse:collapse'>{html_rows(today, False)}</table>"
                   if today else "<div style='color:#666'>Geen wedstrijden vandaag.</div>")

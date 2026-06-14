@@ -26,7 +26,7 @@ check("groep exacte uitslag", score_match(g_exact), (45, "Exacte uitslag 🎯"))
 
 # Zelfde wedstrijd 3-1: toto goed (beide thuiswinst), geen exact -------------
 g_toto = MatchScore("Netherlands", "Japan", 3, 1, 2, 1, "group_stage")
-check("groep toto goed", score_match(g_toto), (30, "Toto goed ✅"))
+check("groep juiste uitkomst", score_match(g_toto), (30, "Juiste uitkomst ✅"))
 
 # 0-2: fout resultaat -> 0 ---------------------------------------------------
 g_miss = MatchScore("Netherlands", "Japan", 0, 2, 2, 1, "group_stage")
@@ -38,7 +38,7 @@ check("finale exacte uitslag", score_match(f_exact), (270, "Exacte uitslag 🎯"
 
 # Finale 3-2: toto goed ------------------------------------------------------
 f_toto = MatchScore("Spain", "Argentina", 3, 2, 2, 1, "final")
-check("finale toto goed", score_match(f_toto), (180, "Toto goed ✅"))
+check("finale juiste uitkomst", score_match(f_toto), (180, "Juiste uitkomst ✅"))
 
 # --- Doelpunt-punten per positie/fase ---------------------------------------
 check("groep DF goal", score_goal("DF", "group_stage"), 64)

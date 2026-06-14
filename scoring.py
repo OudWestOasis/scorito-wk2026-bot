@@ -40,7 +40,7 @@ def score_match(m: MatchScore) -> tuple[int, str]:
     pred_result = _result(m.pred_home, m.pred_away)
     actual_result = _result(m.actual_home, m.actual_away)
     if pred_result == actual_result:
-        return pts["toto"], "Toto goed ✅"
+        return pts["toto"], "Juiste uitkomst ✅"
     return 0, "Geen punten"
 
 
