@@ -63,6 +63,14 @@
     [
       "2026-06-13T22:48:34.903098+00:00",
       "inhaal: Brazil 1-1 Morocco"
+    ],
+    [
+      "2026-06-14T02:05:32.156211+00:00",
+      "inhaal: Haiti 0-1 Scotland"
+    ],
+    [
+      "2026-06-14T02:05:33.621979+00:00",
+      "FT: Brazil 1-1 Morocco → Geen punten (+0)"
     ]
   ],
   "last_known_score": {
@@ -80,6 +88,10 @@
     ],
     "760417": [
       4,
+      1
+    ],
+    "760418": [
+      0,
       1
     ],
     "760419": [
@@ -125,6 +137,24 @@
       "home": "USA",
       "phase": "group_stage"
     },
+    "760419": {
+      "ah": 1,
+      "aw": 1,
+      "away": "Morocco",
+      "goal_pts": 0,
+      "home": "Brazil",
+      "phase": "group_stage",
+      "scorers": [
+        [
+          "Ismael Saibari",
+          "Morocco"
+        ],
+        [
+          "Vinícius Júnior",
+          "Brazil"
+        ]
+      ]
+    },
     "760420": {
       "ah": 1,
       "aw": 1,
@@ -150,6 +180,7 @@
     "toto_760414": "1",
     "toto_760415": "1",
     "toto_760416": "1",
+    "toto_760418": "1",
     "toto_760419": "0",
     "toto_760420": "1"
   },
@@ -172,6 +203,9 @@
     "760419:pre",
     "760420:post",
     "760419:catchup",
-    "760419:min80"
+    "760419:min80",
+    "760418:catchup",
+    "760418:ht",
+    "760419:post"
   ]
 }
