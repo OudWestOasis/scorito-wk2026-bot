@@ -670,7 +670,7 @@ def cmd_poll():
             if (minute is not None and 1 <= minute < 90
                     and not storage.was_sent(m["id"], "vibe")
                     and random.random() < 0.12):
-                send(CHAT_ID, random.choice(VIBE_WORDS))
+                send(CHAT_ID, random.choice(VIBE_WORDS), parse_mode="")
                 storage.mark_sent(m["id"], "vibe")
                 print(f"[vibe] {m['home']}-{m['away']}")
     except Exception as e:

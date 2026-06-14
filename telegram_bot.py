@@ -9,11 +9,10 @@ def _base() -> str:
 
 
 def send(chat_id: str, text: str, parse_mode: str = "Markdown") -> dict:
-    r = requests.post(
-        f"{_base()}/sendMessage",
-        json={"chat_id": chat_id, "text": text, "parse_mode": parse_mode},
-        timeout=15,
-    )
+    payload = {"chat_id": chat_id, "text": text}
+    if parse_mode:                       # leeg/None => platte tekst (geen opmaak)
+        payload["parse_mode"] = parse_mode
+    r = requests.post(f"{_base()}/sendMessage", json=payload, timeout=15)
     r.raise_for_status()
     return r.json()
 
