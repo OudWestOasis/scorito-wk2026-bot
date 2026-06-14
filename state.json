@@ -71,6 +71,18 @@
     [
       "2026-06-14T02:05:33.621979+00:00",
       "FT: Brazil 1-1 Morocco → Geen punten (+0)"
+    ],
+    [
+      "2026-06-14T06:35:36.938153+00:00",
+      "ochtendbericht verstuurd"
+    ],
+    [
+      "2026-06-14T06:35:40.643530+00:00",
+      "FT: Haiti 0-1 Scotland → Toto goed ✅ (+30)"
+    ],
+    [
+      "2026-06-14T06:35:42.374320+00:00",
+      "FT: Australia 2-0 Turkey → Geen punten (+0)"
     ]
   ],
   "last_known_score": {
@@ -101,6 +113,10 @@
     "760420": [
       1,
       1
+    ],
+    "760421": [
+      2,
+      0
     ]
   },
   "match_goal_points": {},
@@ -137,6 +153,20 @@
       "home": "USA",
       "phase": "group_stage"
     },
+    "760418": {
+      "ah": 0,
+      "aw": 1,
+      "away": "Scotland",
+      "goal_pts": 0,
+      "home": "Haiti",
+      "phase": "group_stage",
+      "scorers": [
+        [
+          "John McGinn",
+          "Scotland"
+        ]
+      ]
+    },
     "760419": {
       "ah": 1,
       "aw": 1,
@@ -172,10 +202,28 @@
           "Qatar"
         ]
       ]
+    },
+    "760421": {
+      "ah": 2,
+      "aw": 0,
+      "away": "Turkey",
+      "goal_pts": 0,
+      "home": "Australia",
+      "phase": "group_stage",
+      "scorers": [
+        [
+          "Nestory Irankunda",
+          "Australia"
+        ],
+        [
+          "Connor Metcalfe",
+          "Australia"
+        ]
+      ]
     }
   },
   "meta": {
-    "last_morning_date": "2026-06-12",
+    "last_morning_date": "2026-06-14",
     "tg_offset": "736448690",
     "toto_760414": "1",
     "toto_760415": "1",
@@ -185,7 +233,7 @@
     "toto_760420": "1"
   },
   "running_total": {
-    "group_stage": 150
+    "group_stage": 180
   },
   "scorer_goals": {},
   "sent_messages": [
@@ -206,6 +254,8 @@
     "760419:min80",
     "760418:catchup",
     "760418:ht",
-    "760419:post"
+    "760419:post",
+    "760418:post",
+    "760421:post"
   ]
 }
