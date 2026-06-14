@@ -39,7 +39,8 @@ WD = ["ma", "di", "wo", "do", "vr", "za", "zo"]
 HYPE_WORDS = ["PFFF", "Besef", "Bruut", "Brutal", "Lethal"]
 # Losse, spontane kreetjes (af en toe als los bericht tijdens een wedstrijd).
 VIBE_WORDS = ["Pfff", "Bruut man", "Brutal", "Lethal", "Besef man",
-              "Besef Iers!", "Pfff het leven man!", "Soothening life!", "Bot"]
+              "Besef Iers!", "Pfff het leven man!", "Soothening life!", "Bot",
+              "Fastlane!", "Welvaart!", "Never sleep b*tch!"]
 PHASE_NL = {
     "group_stage": "Groepsfase", "round_of_32": "Laatste 32",
     "round_of_16": "Achtste finale", "quarterfinal": "Kwartfinale",
